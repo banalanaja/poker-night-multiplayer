@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "installedAtUtc": "2026-10-24T17:43:12.0543979Z",
+  "root": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Poker Night at the Inventory Remastered\\mod-project\\.local\\tools",
+  "boundaries": {
+    "globalCodexConfigModified": false,
+    "globalNodeModified": false,
+    "gameFilesModified": false,
+    "thirdPartyInstallScripts": "npm lifecycle scripts disabled; Python wheel build uses reviewed pyproject and Hatchling",
+    "falMcpEnabled": false
+  },
+  "tools": [
+    {
+      "name": "node",
+      "installPath": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Poker Night at the Inventory Remastered\\mod-project\\.local\\tools\\node-v22.23.4-win-x64",
+      "file": "node-v22.23.4-win-x64.zip",
+      "version": "22.23.4",
+      "path": "node-v22.23.4-win-x64",
+      "sha256": "cbc74b5e0982c9dbb41525fd8fb5dcd32fbee237863f7829072f4639a1ce5f20",
+      "license": "MIT plus third-party notices",
+      "integrity": "official SHA256 SHASUMS match",
+      "url": "https://nodejs.org/dist/v22.23.4/node-v22.23.4-win-x64.zip"
+    },
+    {
+      "name": "rea-agents",
+      "installPath": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Poker Night at the Inventory Remastered\\mod-project\\.local\\tools\\rea\\node_modules\\rea-agents",
+      "file": "rea-agents-6.7.0.tgz",
+      "version": "6.7.0",
+      "path": "rea\\node_modules\\rea-agents",
+      "sha256": "20958a66dba1a011e50a486beb9463a343128ed368c984f94065362c13f51f90",
+      "license": "MIT plus third-party notices",
+      "integrity": "sha512-yhIx2ioJYYT1C/tONfYeitC6LhnKmCh+ZwRUOgYuhSc733lGhkkt73zhug9WmLgxoMdKuqIYGCoBfD4fXkOhFw==",
+      "url": "https://registry.npmjs.org/rea-agents/-/rea-agents-6.7.0.tgz"
+    },
+    {
+      "name": "universal-modder",
+      "installPath": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Poker Night at the Inventory Remastered\\mod-project\\.local\\tools\\universal-modder-venv",
+      "commit": "c1dff21663665dd17af289744a301b66e369605e",
+      "file": "universal-modder-c1dff216.zip",
+      "version": "0.2.0",
+      "path": "universal-modder-venv",
+      "sha256": "460f67aafbfa89c9420f8e60c156f3c2114fa777134846a3be4f991610c8f40d",
+      "license": "MIT",
+      "integrity": "local archive SHA256 recorded; HTTPS pinned commit; no upstream digest",
+      "url": "https://github.com/rehan-remade/universal-modder/archive/c1dff21663665dd17af289744a301b66e369605e.zip"
+    },
+    {
+      "name": "ghidra",
+      "installPath": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Poker Night at the Inventory Remastered\\mod-project\\.local\\tools\\ghidra_12.1.4_PUBLIC",
+      "file": "ghidra_12.1.4_PUBLIC_20260921.zip",
+      "version": "12.1.4",
+      "path": "ghidra_12.1.4_PUBLIC",
+      "sha256": "ddac49f903da9d5bac833e5cc79395098b9c33cfd3279be5f31bd00387d2d4db",
+      "license": "Apache-2.0 plus third-party notices",
+      "integrity": "official GitHub release asset SHA256 match",
+      "url": "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_12.1.4_build/ghidra_12.1.4_PUBLIC_20260921.zip"
+    },
+    {
+      "name": "TTG Tools",
+      "installPath": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Poker Night at the Inventory Remastered\\mod-project\\.local\\tools\\ttg-tools-1.16.1",
+      "file": "TTG.Tools.1.16.1.zip",
+      "version": "1.16.1",
+      "path": "ttg-tools-1.16.1",
+      "sha256": "535e26200666cd584e33c2e262cca478183c578439eda3e0ab39a4d8281f4614",
+      "license": "GPL-3.0 (upstream GitHub declaration), plus bundled dependency licenses",
+      "integrity": "official GitHub release asset SHA256 match",
+      "url": "https://github.com/HeitorSpectre/TTG-Tools/releases/download/v.1.16.1/TTG.Tools.1.16.1.zip"
+    }
+  ],
+  "verification": {
+    "nodeSignature": "SHA256 matches official HTTPS SHASUMS; detached signature not verified",
+    "reaVersion": "6.7.0",
+    "nodeVersion": "22.23.4",
+    "javaVersion": "Temurin JDK 21.0.6+7 x64, direct java.exe -version passed",
+    "reaRealAnalysis": "PASS: inspect of bundled Ghidra decompile.exe native x64 via Ghidra12.1.4, default auto-analysis complete, source digest unchanged; unrestricted ordinary-user execution with NTFS short paths and Node preserve flags",
+    "reaGhidraDoctor": "healthy for explicit ghidra scope; unrelated integrations missing by design",
+    "universalModderVersion": "0.2.0",
+    "ttgTools": "extracted; GUI not launched",
+    "codexConfig": "project-scoped TOML parsed; reconnect required",
+    "reaEvidenceId": "ev_66c8cb1ceca2b5bdea5016be52776f1530446f157aa0cd3210df82c2dfb97611",
+    "analysisTargetSha256": "ea42e06df2a64f95188a12422a35a36cd48fd4a6f621e62b001e82f1bbbe923b"
+  },
+  "limitations": [
+    "Windows Ghidra REA provider is experimental",
+    "REA private DACL/process controls may require an unrestricted ordinary-user process; restricted execution failed snapshot creation",
+    "Optional Frida and other providers not validated; npm lifecycle scripts intentionally disabled",
+    "TTG tools may save user settings when launched; it has not been launched by this installer",
+    "Ghidra package is unchanged; NTFS short names plus Node preserve flags avoid parentheses in Windows launch paths"
+  ],
+  "pythonDependencies": {
+    "pyyaml": "6.0.3",
+    "pillow": "13.0.0",
+    "python": "3.12.10",
+    "numpy": "2.5.4"
+  },
+  "reaPackageLockSha256": "bef042589a16a303c8abb196bee80e6def143b0221d50cdfa8960121e98f4e9a",
+  "references": [
+    "https://learn.chatgpt.com/docs/extend/mcp?surface=cli",
+    "https://github.com/morluto/rea/blob/rea-agents-6.7.0/docs/windows-ghidra-p0.md"
+  ]
+}

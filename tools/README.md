@@ -40,4 +40,3 @@ O REA passou no doctor e em análise real de seu executável auxiliar Ghidra dec
 Logs de diagnóstico ficam em `.local/tools/rea-doctor-ghidra.json` e `.local/tools/rea-inspect-*.json`. Eles não contêm credenciais e não precisam ser distribuídos. O manifesto e este README são os únicos registros de ferramentas destinados ao Git.
 
 Fontes: [configuração MCP por projeto](https://learn.chatgpt.com/docs/extend/mcp?surface=cli), [REA Windows no tag instalado](https://github.com/morluto/rea/blob/rea-agents-6.7.0/docs/windows-ghidra-p0.md), [Node oficial](https://nodejs.org/en/download/archive/v22.23.4), [TTG Tools](https://github.com/HeitorSpectre/TTG-Tools/releases/tag/v.1.16.1).
-

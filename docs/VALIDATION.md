@@ -5,11 +5,17 @@ Ambiente inicial: Windows x64, .NET SDK 10.0.113, MSVC 19.44 e Windows SDK 10.0.
 | Verificação | Resultado |
 |---|---|
 | Compilação .NET Release | Passou, sem avisos |
-| Testes de protocolo/autoridade/lobby/ponte | 10 passaram, incluindo conexão TCP entre runtimes isolados |
+| Testes de protocolo/autoridade/lobby/ponte/aplicativo | 13 passaram, incluindo cinco conexões TCP, diagnóstico sem dados privados e pacote adulterado |
 | Compilação DLL C++20 x64 | Passou |
 | CTest de filas, limites, concorrência e thread | Passou |
 | Adaptador Lua 5.2 com objetos de fronteira próprios | 8 passaram, incluindo distribuição parcial e revelação por jogador |
 | Codec JSON Lua próprio | 5 passaram |
+| Proteção Lua antes da inicialização original | 3 passaram: multiplayer ativo, solo e sessão encerrada |
+| Aplicativo Windows independente do SDK | Publicado e aberto com runtime .NET incorporado |
+| Instalação automática de ferramentas | Download com SHA-256 verificado, extração e instalação no jogo passaram |
+| Exportação de diagnóstico pela interface | ZIP salvo e selecionado no Explorer; três arquivos permitidos |
+| Lobby pela interface e convidado TCP | Dois lugares prontos, três bots e abertura pela Steam passaram |
+| Abertura multiplayer com proteção antecipada | Menu alcançado; hash e timestamp de persistent.prop permaneceram iguais |
 | Fingerprint do executável instalado | Confere com o perfil |
 | Bootstrap compilado e thread Lua no jogo | Passou |
 | Universal-Modder scan | Executado, relatório privado em `.local/` |
@@ -42,7 +48,17 @@ controlados, bots nos restantes e ações chegando por TCP. O convidado nesse te
 aplicativo auxiliar, sem outra janela do jogo. Isso comprova o caminho da autoridade e
 resolução original, mas não substitui M1 com dois jogadores e duas réplicas visuais.
 
-As evidências registram os testes feitos, não uma certificação de cada alteração posterior.
-A revelação individual no showdown, o tratamento da eliminação do lugar original e o
-bloqueio do fast-forward solo foram ajustados depois dessa mão; exigem mais testes no motor.
-O modo espectador solo não pode autorizar a transmissão de cartas ocultas durante apostas.
+`evidence/desktop-hand.json` registra outra mão completa no motor original, com anfitrião
+no aplicativo Windows e convidado TCP sem janela. O showdown revelou três lugares,
+o pote terminou em zero e o total permaneceu em 50000 fichas. A saída do jogo encerrou
+a sala. Isso ainda não valida duas réplicas visuais simultâneas nem duas máquinas.
+
+`evidence/bootstrap-persistence.json` registra uma abertura posterior pela Steam até o
+menu com a proteção antecipada do arquivo solo. O teste compara hash e timestamp;
+não inclui o arquivo nem seus valores. Os três testes Lua adicionais verificam que a
+proteção fica inativa no modo solo e após encerrar uma sessão.
+
+Os testes do ZIP inserem cartas, baralho, sementes, nomes e mensagens privadas artificiais
+nos arquivos locais e verificam a ausência desses dados em todas as entradas exportadas.
+As evidências não certificam todos os personagens, eliminações ou isolamento completo
+da progressão. O modo espectador solo não pode autorizar cartas ocultas durante apostas.

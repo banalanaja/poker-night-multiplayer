@@ -1,7 +1,8 @@
-# Protocolo v2
+# Protocolo v3
 
-A versão 2 acrescenta a ponte de partida e o turno associado aos erros de ação.
-Clientes da versão 1 são recusados no handshake.
+A versão 3 exige também `modVersion` no `hello`; versões diferentes do mod são recusadas.
+A versão 2 acrescentou a ponte de partida e o turno associado aos erros de ação.
+Clientes das versões 1 e 2 são recusados na conexão.
 
 TCP por IP e porta escolhidos. Cada mensagem é JSON UTF-8 com envelope `{type,payload}`,
 precedida por comprimento de 4 bytes big-endian. Limite: 65536 bytes; profundidade JSON: 32.

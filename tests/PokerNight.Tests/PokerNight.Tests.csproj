@@ -5,5 +5,6 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/PokerNight.Multiplayer/PokerNight.Multiplayer.csproj" />
+    <ProjectReference Include="../../src/PokerNight.App/PokerNight.App.csproj" />
   </ItemGroup>
 </Project>

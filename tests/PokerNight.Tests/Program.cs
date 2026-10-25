@@ -45,6 +45,7 @@ await Test("build and protocol mismatch rejected", () => Sync(() =>
 {
     var lobby = new Lobby(hash, Guid.NewGuid());
     Throws(() => lobby.Join(Guid.NewGuid(), new(WireCodec.Version - 1, hash, "Peer")));
+    Throws(() => lobby.Join(Guid.NewGuid(), new(WireCodec.Version, hash, "Peer", "different-mod")));
     Throws(() => lobby.Join(Guid.NewGuid(), new(WireCodec.Version, new string('0', 64), "Peer")));
 }));
 await Test("simultaneous claims have one winner", async () =>
@@ -111,6 +112,9 @@ await Test("actual TCP lobby joins and rejects occupied seat", async () =>
     timeout.Cancel(); await run;
 });
 await Test("TCP game bridge routes private views and actions between isolated runtimes", LiveBridgeTests.Run);
+await Test("five TCP peers receive private hands and disconnected seats become bots", FivePeerTests.Run);
+await Test("diagnostic ZIP preserves troubleshooting context without private data", AppTests.Diagnostics);
+await Test("installer rejects tampered downloads and zip traversal", AppTests.PackageSafety);
 Console.WriteLine($"{passed} passed; {failed} failed. These are protocol tests, not a playable game validation.");
 return failed == 0 ? 0 : 1;
 

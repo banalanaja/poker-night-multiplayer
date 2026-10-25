@@ -2,6 +2,7 @@ param(
     [string]$GameDirectory = (Split-Path -Parent (Split-Path -Parent $PSScriptRoot)),
     [string]$TtgDirectory = (Join-Path (Split-Path -Parent $PSScriptRoot) '.local\tools\ttg-tools-1.16.1'),
     [string]$RuntimeDirectory = (Join-Path (Split-Path -Parent $PSScriptRoot) '.local\runtime'),
+    [string]$ModVersion = '0.2.0-preview.2',
     [switch]$Uninstall
 )
 $ErrorActionPreference='Stop'
@@ -46,7 +47,7 @@ $sourceArchive=Join-Path $game 'Archives\CP_pc_Project_compressed.ttarch2'
 $sourceHash=(Get-FileHash -LiteralPath $sourceArchive).Hash
 & $bridge $tool $game $work '_' '_' '_' extract
 if($LASTEXITCODE -ne 0) { throw 'Falha ao extrair o bootstrap original localmente.' }
-$scripts=@{'_system.lua'='SystemWrapper.lua';'PNM_Runtime.lua'='Runtime.lua';'PNM_Json.lua'='Json.lua';'PNM_Adapter.lua'='PokerNightMultiplayer.lua'}
+$scripts=@{'_system.lua'='SystemWrapper.lua';'PNM_BootGuard.lua'='BootGuard.lua';'PNM_Runtime.lua'='Runtime.lua';'PNM_Json.lua'='Json.lua';'PNM_Adapter.lua'='PokerNightMultiplayer.lua'}
 foreach($entry in $scripts.GetEnumerator()) {
     & $compiler -s -o (Join-Path $work $entry.Key) (Join-Path $projectRoot ('game\'+$entry.Value))
     if($LASTEXITCODE -ne 0) { throw 'Falha ao compilar scripts Lua.' }
@@ -101,7 +102,7 @@ foreach($target in @($archiveTarget,$descriptorTarget)) {
 try {
     $written+=$archiveTarget;Copy-Item -LiteralPath $archiveOutput -Destination $archiveTarget
     $written+=$descriptorTarget;Copy-Item -LiteralPath $descriptorOutput -Destination $descriptorTarget
-    @{schemaVersion=1;gameDirectory=$game;gameSha256=$profile.sha256;files=$files;originalProjectSha256=$sourceHash} |
+    @{schemaVersion=1;modVersion=$ModVersion;gameDirectory=$game;gameSha256=$profile.sha256;files=$files;originalProjectSha256=$sourceHash} |
         ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $manifestPath
 } catch {
     # Restore the previous task-owned version after a failed update.

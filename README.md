@@ -4,12 +4,23 @@ Mod em desenvolvimento para **Poker Night at the Inventory Remastered**, Windows
 Objetivo: poker por IP direto (LAN, Radmin VPN ou Tailscale), com 2–5 pessoas escolhendo
 Max, Strong Bad, Heavy, Tycho ou o lugar original do jogador.
 
-**Estado atual: pré-alpha técnica, sem pacote de alpha jogável publicado.**
+**Estado atual: prévia de testes, ainda sem validação entre dois jogos completos por VPN.**
 O bootstrap Lua foi carregado no jogo real: a captura da mesa e uma ação de call foram
 validadas, com desconto de fichas e avanço do turno. O transporte TCP agora conecta esse
 runtime ao aplicativo auxiliar e projeta uma mão privada por destinatário.
 A mão completa também passou no motor original com um convidado TCP sem janela.
 A réplica e o HUD estão em validação. Uma mão entre duas máquinas ainda precisa ser comprovada.
+
+## Instalar e jogar sem terminal
+
+Baixe o [pacote Windows de testes](https://github.com/banalanaja/poker-night-multiplayer/releases/tag/v0.2.0-preview.2),
+extraia e abra `PokerNightMultiplayer.exe`. O aplicativo detecta o jogo, instala os scripts,
+cria/entra na sala e abre a Steam. Não é necessário instalar .NET ou ferramentas de desenvolvimento.
+Veja o [guia para jogar com um amigo](docs/JOGAR.md).
+
+Se houver erro, cada participante clica em **Exportar diagnóstico** e envia o ZIP inteiro.
+Ele inclui contexto técnico e erros estruturados, sem cartas, baralho, saves, IPs, nomes ou
+arquivos originais. [Conteúdo dos diagnósticos](docs/DIAGNOSTICS.md).
 
 ## O que existe
 
@@ -20,6 +31,7 @@ A réplica e o HUD estão em validação. Uma mão entre duas máquinas ainda pr
 - Primitivas C++20 com filas limitadas e testes de concorrência e identificação da thread do jogo.
 - Runtime Lua cooperativo na thread do jogo, IPC local tipado e réplica passiva dos convidados.
 - Instalador que gera o pacote a partir da instalação do usuário, sem distribuir scripts originais.
+- Aplicativo Windows com instalação assistida, lobby, abertura da Steam e diagnóstico em um ZIP.
 - Perfil da build Steam `25257439`, com SHA-256 e integração **Lua** verificada; sem endereços nativos presumidos.
 - Ferramentas de investigação instaladas localmente e ignoradas pelo Git; [manifesto](tools/tool-manifest.json).
 
@@ -31,17 +43,21 @@ Requer .NET SDK 10, CMake 3.25+ e Visual Studio 2022 com ferramentas C++ x64 par
 .\build.ps1 -Native
 ```
 
-O aplicativo fica em `src/PokerNight.Launcher/bin/Release/net10.0/`.
+O aplicativo gráfico fica em `src/PokerNight.Desktop/bin/Release/net10.0-windows/`;
+a CLI de desenvolvimento fica em `src/PokerNight.Launcher/bin/Release/net10.0/`.
 O script mantém os caches .NET/NuGet em `.local/` e não atualiza ferramentas globais.
 Os testes Lua podem ser executados com Lua 5.2, a partir da raiz:
 
 ```powershell
 lua tests/lua/adapter_test.lua
 lua tests/lua/json_test.lua
+lua tests/lua/boot_guard_test.lua
 ```
 
 Eles usam objetos de fronteira próprios; não contêm scripts originais do jogo.
 Passar esses testes **não comprova uma alpha jogável**.
+
+Para gerar o ZIP Windows com runtime incluído: `./tools/Publish-Windows.ps1`.
 
 ## Inspecionar compatibilidade
 

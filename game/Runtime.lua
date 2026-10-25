@@ -225,8 +225,10 @@ local function createInputProxy(gameTable)
   return proxy
 end
 local function install()
+  runtime.installStage="protect_progress"
   protectProgress()
   original.aiEvaluate=AIPlayer.EvaluateAndAct
+  runtime.installStage="launch_hook"
   local launch=CelebrityPoker
   CelebrityPoker=function(...)
     if runtime.inGame then return end
@@ -239,6 +241,7 @@ local function install()
     return table.unpack(result)
   end
   local getPlayer=GameTable.GetPlayer
+  runtime.installStage="input_proxy"
   GameTable.GetPlayer=function(self,index) if index==nil and inputProxy and inputProxy.parentTable==self then return inputProxy end;return getPlayer(self,index) end
   local initialize=GameTable.Initialize
   GameTable.Initialize=function(self,...)
@@ -247,6 +250,7 @@ local function install()
   end
   inputProxy=createInputProxy(GameObject:GetTable())
   if config.role=="host" then
+    runtime.installStage="host_hooks"
     local endTournament=EndTournament
     EndTournament=function(kind,...)
       if kind==3 and #GameObject:GetTable():GetNonBustedPlayers()>1 then return end
@@ -280,12 +284,14 @@ local function install()
       return a,b
     end
   end else
+    runtime.installStage="replica_hooks"
     Game.RunTournament=function() LogicSet("bInGame",true);CameraManager_SetActiveCamera();UI_HideCursor(false) end
     Game.DoRound=function() end
     Game.OnButtonDeal=function() end
   end
   GameObject.skipOpeningSequence=true
   runtime.installed=true
+  runtime.installStage="runtime_loop"
   write("status.json",{loaded=true,installed=true,lua=_VERSION,sessionId=config.sessionId,role=config.role,progressIsolated=true})
   local elapsed=0
   while true do
@@ -308,7 +314,11 @@ local function install()
       else replica(GameObject:GetTable()) end
       stage="input";updateInput(GameObject:GetTable())
     end)
-    if not ok then write("status.json",{loaded=true,installed=true,snapshotError=true,stage=stage,sessionId=config.sessionId,role=config.role}) end
+    if not ok then
+      if write("status.json",{loaded=true,installed=true,progressIsolated=true,snapshotError=true,stage=stage,sessionId=config.sessionId,role=config.role}) then runtime.snapshotFailed=true end
+    elseif runtime.snapshotFailed then
+      if write("status.json",{loaded=true,installed=true,progressIsolated=true,snapshotError=false,sessionId=config.sessionId,role=config.role}) then runtime.snapshotFailed=false end
+    end
     repeat WaitForNextFrame();elapsed=elapsed+GetAverageFrameTime() until elapsed>=0.1
     elapsed=0
   end
@@ -317,5 +327,5 @@ write("status.json",{loaded=true,lua=_VERSION,sessionId=config.sessionId})
 ThreadStart(function()
   while not (GameObject and HumanPlayer and AIPlayer and Player and GameObject:GetTable()) do WaitForNextFrame() end
   local ok=pcall(install)
-  if not ok then write("status.json",{loaded=true,installed=false,error="runtime_install_failed"}) end
+  if not ok then write("status.json",{loaded=true,installed=false,error="runtime_install_failed",stage=runtime.installStage,sessionId=config.sessionId,role=config.role}) end
 end)

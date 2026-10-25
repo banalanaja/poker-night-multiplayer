@@ -11,6 +11,8 @@ Push-Location $PSScriptRoot
 try {
     & dotnet build src/PokerNight.Launcher -c Release
     if ($LASTEXITCODE -ne 0) { throw 'Falha ao compilar o aplicativo auxiliar.' }
+    & dotnet build src/PokerNight.Desktop -c Release
+    if ($LASTEXITCODE -ne 0) { throw 'Falha ao compilar o aplicativo Windows.' }
     & dotnet run --project tests/PokerNight.Tests -c Release
     if ($LASTEXITCODE -ne 0) { throw 'Falha nos testes de protocolo.' }
     if ($Native) {

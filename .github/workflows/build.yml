@@ -16,3 +16,6 @@ jobs:
       - name: Compile and test without game assets
         shell: pwsh
         run: ./build.ps1 -Native
+      - name: Package standalone Windows app without game assets
+        shell: pwsh
+        run: ./tools/Publish-Windows.ps1

@@ -5,10 +5,15 @@ namespace PokerNight.Multiplayer;
 
 public sealed class GameClient(FileGameRuntime runtime)
 {
+    private LobbyState? lobbyState;
+    public LobbyState? Lobby => Volatile.Read(ref lobbyState);
     public async Task RunAsync(IPAddress address, int port, Hello hello, Seat seat, CancellationToken cancellationToken)
     {
         using var socket = new TcpClient(address.AddressFamily) { NoDelay = true };
-        await socket.ConnectAsync(address, port, cancellationToken);
+        using var connectionTimeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        connectionTimeout.CancelAfter(TimeSpan.FromSeconds(10));
+        try { await socket.ConnectAsync(address, port, connectionTimeout.Token); }
+        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested) { throw new IOException("A conexão não respondeu em 10 segundos. Confira o IP, a VPN e o firewall."); }
         using var lifetime = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         var stream = socket.GetStream();
         var sendLock = new SemaphoreSlim(1);
@@ -19,8 +24,14 @@ public sealed class GameClient(FileGameRuntime runtime)
             finally { sendLock.Release(); }
         }
         await Send(WireMessage.From("hello", hello));
-        var welcomeMessage = await WireCodec.ReadAsync(stream, lifetime.Token);
-        if (welcomeMessage?.Type != "welcome") throw new InvalidDataException("Handshake recusado.");
+        WireMessage? welcomeMessage;
+        using (var handshake = CancellationTokenSource.CreateLinkedTokenSource(lifetime.Token))
+        {
+            handshake.CancelAfter(TimeSpan.FromSeconds(10));
+            try { welcomeMessage = await WireCodec.ReadAsync(stream, handshake.Token); }
+            catch (OperationCanceledException) when (!lifetime.IsCancellationRequested) { throw new IOException("O anfitrião não concluiu a conexão."); }
+        }
+        if (welcomeMessage?.Type != "welcome") throw new InvalidDataException("O anfitrião recusou a conexão. Confiram a mesma versão do mod e do jogo.");
         Guid session = welcomeMessage.Read<Welcome>().SessionId;
         runtime.Configure(new(session, "client", seat, new() { [seat] = true }));
         await Send(WireMessage.From("selectSeat", new SeatRequest(seat)));
@@ -53,6 +64,7 @@ public sealed class GameClient(FileGameRuntime runtime)
                         if (lobby.SessionId != session) throw new InvalidDataException("Outra sessão.");
                         names = lobby.Seats.ToDictionary(x => x.Seat, x => x.IsBot ? "Bot" : x.Nickname);
                         if (lobby.Started) runtime.Start(session);
+                        Volatile.Write(ref lobbyState, lobby);
                         break;
                     case "publicTable":
                         var table = message.Read<PublicTableState>();
@@ -70,7 +82,7 @@ public sealed class GameClient(FileGameRuntime runtime)
                         break;
                     case "error":
                         var error = message.Read<ProtocolError>();
-                        if (current is null) throw new InvalidOperationException("O anfitrião recusou o pedido de lobby.");
+                        if (current is null) throw new InvalidOperationException(error.Code == "seat_unavailable" ? "Esse personagem já está ocupado. Escolha outro e entre novamente." : "O anfitrião recusou o pedido da sala.");
                         runtime.ActionError(session, error.TurnId ?? current.TurnId);
                         break;
                     default: throw new InvalidDataException("Mensagem desconhecida.");

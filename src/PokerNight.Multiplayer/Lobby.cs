@@ -16,7 +16,7 @@ public sealed class Lobby(string gameSha256, Guid hostConnectionId, Guid? sessio
         lock (gate)
         {
             if (started) throw new InvalidOperationException("A partida já começou; entrada somente no lobby.");
-            if (hello.ProtocolVersion != WireCodec.Version || !string.Equals(hello.GameSha256, gameSha256, StringComparison.OrdinalIgnoreCase))
+            if (hello.ProtocolVersion != WireCodec.Version || hello.ModVersion != BuildIdentity.ModVersion || !string.Equals(hello.GameSha256, gameSha256, StringComparison.OrdinalIgnoreCase))
                 throw new InvalidOperationException("Versão do jogo ou protocolo incompatível.");
             if (names.Count >= 5 || names.ContainsKey(connectionId)) throw new InvalidOperationException("Sala cheia ou conexão duplicada.");
             string nickname = hello.Nickname?.Trim() ?? "";

@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Version>0.2.0-preview.2</Version>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AssemblyName>PokerNightMultiplayer</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../PokerNight.App/PokerNight.App.csproj" />
+    <Compile Include="../PokerNight.Launcher/GameProcessLifetime.cs" Link="GameProcessLifetime.cs" />
+    <EmbeddedResource Include="../../game/*.lua" LogicalName="pnm/game/%(Filename)%(Extension)" />
+    <EmbeddedResource Include="../../profiles/*.json" LogicalName="pnm/profiles/%(Filename)%(Extension)" />
+    <EmbeddedResource Include="../../tools/Install-GameScripts.ps1;../../tools/TtgPackageBridge.cs" LogicalName="pnm/tools/%(Filename)%(Extension)" />
+  </ItemGroup>
+</Project>

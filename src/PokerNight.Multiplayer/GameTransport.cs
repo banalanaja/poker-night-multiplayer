@@ -140,7 +140,7 @@ public sealed class GameTransport : IAsyncDisposable
                 }
                 catch (InvalidOperationException)
                 {
-                    await peer.Send(WireMessage.From("error", new ProtocolError("invalid_request", "Pedido inválido para o estado atual.", requestedTurn)), token);
+                    await peer.Send(WireMessage.From("error", new ProtocolError(message.Type == "selectSeat" ? "seat_unavailable" : "invalid_request", "Pedido inválido para o estado atual.", requestedTurn)), token);
                 }
             }
         }

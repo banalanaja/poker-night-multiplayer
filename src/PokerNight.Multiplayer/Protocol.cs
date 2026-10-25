@@ -24,7 +24,9 @@ public sealed record PrivateHand(Guid SessionId, long HandId, long Sequence, Sea
 public sealed record PlayerAction([property: JsonRequired] Guid SessionId, [property: JsonRequired] long HandId,
     [property: JsonRequired] long TurnId, [property: JsonRequired] long Sequence,
     [property: JsonRequired] PokerAction Action, long Amount = 0);
-public sealed record Hello(int ProtocolVersion, string GameSha256, string Nickname);
+public static class BuildIdentity { public const string ModVersion = "0.2.0-preview.2"; }
+public sealed record Hello(int ProtocolVersion, string GameSha256, string Nickname,
+    [property: JsonRequired] string ModVersion = BuildIdentity.ModVersion);
 public sealed record Welcome(Guid SessionId, Guid ConnectionId);
 public sealed record SeatRequest([property: JsonRequired] Seat Seat);
 public sealed record ReadyRequest(bool Ready);
@@ -37,7 +39,7 @@ public sealed record WireMessage(string Type, JsonElement Payload)
 
 public static class WireCodec
 {
-    public const int Version = 2;
+    public const int Version = 3;
     public const int MaximumFrameBytes = 65536;
     public static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
     {

@@ -1,0 +1,11 @@
+{
+  "totalChips": 50000.0,
+  "pot": 0,
+  "hand": 1,
+  "revealedSeatCount": 3,
+  "privateCardValuesIncluded": false,
+  "host": "standalone desktop app and original game",
+  "street": "complete",
+  "completed": true,
+  "guest": "headless TCP companion"
+}

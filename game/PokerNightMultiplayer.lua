@@ -1,5 +1,5 @@
 -- Own adapter code for the inspected Telltale Lua 5.2 API.
--- Not automatically installed: engine-thread bootstrap and replica integration are still unverified.
+-- Runtime.lua calls this adapter cooperatively on the game Lua thread.
 local M = {}
 local names = { "Max", "Strongbad", "Heavy", "Tycho", "Player" }
 local seats = { "max", "strongBad", "heavy", "tycho", "player" }
@@ -32,9 +32,13 @@ function M.capture(gameTable, context)
       seat = seat, chips = player:GetChips(), contribution = player:GetChipsInPot(),
       folded = player:IsFolded(), allIn = player:IsAllIn(), eliminated = player:IsBusted()
     }
-    private[seat] = copyCards(player:GetHand().holeCards)
-    if gameTable.cardsTurnedOver and not player:IsFolded() then
-      public.revealedHands[seat] = copyCards(player:GetHand().holeCards)
+    local holeCards=copyCards(player:GetHand().holeCards)
+    -- Dealing yields between cards; only publish complete hands.
+    private[seat] = #holeCards==2 and holeCards or {}
+    local resolving=context.street=="showdown" or context.street=="complete"
+    if (gameTable.cardsTurnedOver or resolving and (player.showingHoleCards or player.showingHandCards))
+      and not player:IsFolded() and #holeCards==2 then
+      public.revealedHands[seat] = holeCards
     end
     if context.activeSeat == seat then
       public.toCall = math.max(0, gameTable:GetCallValue() - player:GetChipsInPot())

@@ -4,11 +4,12 @@ Mod em desenvolvimento para **Poker Night at the Inventory Remastered**, Windows
 Objetivo: poker por IP direto (LAN, Radmin VPN ou Tailscale), com 2–5 pessoas escolhendo
 Max, Strong Bad, Heavy, Tycho ou o lugar original do jogador.
 
-**Estado atual: pré-alpha técnica. Ainda não é possível jogar uma partida multiplayer.**
-O lobby TCP funciona e tem testes de conexão real em loopback. O adaptador Lua usa as
-interfaces encontradas nesta instalação, mas ainda não foi conectado e validado dentro
-de uma partida. A DLL contém primitivas de fila, sem loader ou hooks Lua ativos.
-O comando `host` recusa iniciar enquanto essa integração não existir.
+**Estado atual: pré-alpha técnica, sem pacote de alpha jogável publicado.**
+O bootstrap Lua foi carregado no jogo real: a captura da mesa e uma ação de call foram
+validadas, com desconto de fichas e avanço do turno. O transporte TCP agora conecta esse
+runtime ao aplicativo auxiliar e projeta uma mão privada por destinatário.
+A mão completa também passou no motor original com um convidado TCP sem janela.
+A réplica e o HUD estão em validação. Uma mão entre duas máquinas ainda precisa ser comprovada.
 
 ## O que existe
 
@@ -17,7 +18,9 @@ O comando `host` recusa iniciar enquanto essa integração não existir.
 - Rejeição de ações fora da vez, repetidas, de outra sessão/mão/turno e com valores inválidos.
 - Adaptador Lua próprio para capturar a mesa, converter ações para a API do jogo e renderizar as cartas locais.
 - Primitivas C++20 com filas limitadas e testes de concorrência e identificação da thread do jogo.
-- Perfil da build Steam `25257439`, com SHA-256 do executável e hooks marcados como **não verificados**.
+- Runtime Lua cooperativo na thread do jogo, IPC local tipado e réplica passiva dos convidados.
+- Instalador que gera o pacote a partir da instalação do usuário, sem distribuir scripts originais.
+- Perfil da build Steam `25257439`, com SHA-256 e integração **Lua** verificada; sem endereços nativos presumidos.
 - Ferramentas de investigação instaladas localmente e ignoradas pelo Git; [manifesto](tools/tool-manifest.json).
 
 ## Compilar e testar
@@ -34,6 +37,7 @@ Os testes Lua podem ser executados com Lua 5.2, a partir da raiz:
 
 ```powershell
 lua tests/lua/adapter_test.lua
+lua tests/lua/json_test.lua
 ```
 
 Eles usam objetos de fronteira próprios; não contêm scripts originais do jogo.
@@ -62,10 +66,19 @@ Para diagnosticar duas máquinas, selecione o IP da interface VPN no anfitrião 
 mesmo endereço no convidado. Ambos precisam da mesma build. A porta é TCP e configurável;
 não é necessário desativar o firewall. Validação por VPN em duas máquinas ainda está pendente.
 
-## Como será a partida
+## Teste com o jogo
 
-O anfitrião executará as regras e bots do jogo. Convidados receberão a mesa pública e
-somente suas próprias cartas. Todos conservarão a câmera tradicional. A interface indicará
+Consulte [instalação e comandos de teste](docs/PLAYTEST.md). O instalador exige TTG Tools
+1.16.1 e o compilador LuaR compatível incluído nele. O pacote é criado localmente e adiciona
+dois arquivos ao diretório `Archives`; a remoção confere seus hashes antes de apagá-los.
+
+Os comandos `play-host` e `play-join` usam o jogo original como motor, não um simulador.
+Eles são ferramentas de desenvolvimento; não representam uma alpha multiplayer validada.
+
+## Funcionamento da partida
+
+O anfitrião executa as regras e bots do jogo. Convidados recebem a mesa pública e
+somente suas próprias cartas. A réplica conserva a câmera tradicional. A interface indica
 personagem local, jogador da vez e ações disponíveis. O anfitrião é confiável e pode
 tecnicamente conhecer o estado completo.
 

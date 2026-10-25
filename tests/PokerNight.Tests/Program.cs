@@ -32,7 +32,7 @@ await Test("oversized and truncated frames rejected", async () =>
 await Test("seat ownership and readiness", () => Sync(() =>
 {
     var host = Guid.NewGuid(); var guest = Guid.NewGuid(); var lobby = new Lobby(hash, host);
-    lobby.Join(host, new(1, hash, "Host")); lobby.Join(guest, new(1, hash, "Guest"));
+    lobby.Join(host, new(WireCodec.Version, hash, "Host")); lobby.Join(guest, new(WireCodec.Version, hash, "Guest"));
     lobby.SelectSeat(host, Seat.Max); Throws(() => lobby.SelectSeat(guest, Seat.Max));
     lobby.SelectSeat(guest, Seat.Heavy); lobby.SetReady(host, true); Throws(() => lobby.Start(host));
     lobby.SetReady(guest, true); Throws(() => lobby.Start(guest)); lobby.Start(host);
@@ -44,13 +44,13 @@ await Test("seat ownership and readiness", () => Sync(() =>
 await Test("build and protocol mismatch rejected", () => Sync(() =>
 {
     var lobby = new Lobby(hash, Guid.NewGuid());
-    Throws(() => lobby.Join(Guid.NewGuid(), new(2, hash, "Peer")));
-    Throws(() => lobby.Join(Guid.NewGuid(), new(1, new string('0', 64), "Peer")));
+    Throws(() => lobby.Join(Guid.NewGuid(), new(WireCodec.Version - 1, hash, "Peer")));
+    Throws(() => lobby.Join(Guid.NewGuid(), new(WireCodec.Version, new string('0', 64), "Peer")));
 }));
 await Test("simultaneous claims have one winner", async () =>
 {
     var lobby = new Lobby(hash, Guid.NewGuid()); var a = Guid.NewGuid(); var b = Guid.NewGuid();
-    lobby.Join(a, new(1, hash, "A")); lobby.Join(b, new(1, hash, "B"));
+    lobby.Join(a, new(WireCodec.Version, hash, "A")); lobby.Join(b, new(WireCodec.Version, hash, "B"));
     int wins = 0;
     await Task.WhenAll(new[] { a, b }.Select(id => Task.Run(() => { try { lobby.SelectSeat(id, Seat.Tycho); Interlocked.Increment(ref wins); } catch (InvalidOperationException) { } })));
     Check(wins == 1, "Duplicate seat");
@@ -100,7 +100,7 @@ await Test("actual TCP lobby joins and rejects occupied seat", async () =>
     using var client = new TcpClient();
     await client.ConnectAsync(server.Endpoint.Address, server.Endpoint.Port, timeout.Token);
     var stream = client.GetStream();
-    await WireCodec.WriteAsync(stream, WireMessage.From("hello", new Hello(1, hash, "Guest")), timeout.Token);
+    await WireCodec.WriteAsync(stream, WireMessage.From("hello", new Hello(WireCodec.Version, hash, "Guest")), timeout.Token);
     Check((await WireCodec.ReadAsync(stream, timeout.Token))?.Type == "welcome", "No welcome");
     Check((await WireCodec.ReadAsync(stream, timeout.Token))?.Type == "lobby", "No lobby");
     await WireCodec.WriteAsync(stream, WireMessage.From("selectSeat", new SeatRequest(Seat.Max)), timeout.Token);
@@ -110,6 +110,7 @@ await Test("actual TCP lobby joins and rejects occupied seat", async () =>
     Check(snapshot.Seats.Single(x => x.Seat == Seat.Heavy).Nickname == "Guest", "Wrong assignment");
     timeout.Cancel(); await run;
 });
+await Test("TCP game bridge routes private views and actions between isolated runtimes", LiveBridgeTests.Run);
 Console.WriteLine($"{passed} passed; {failed} failed. These are protocol tests, not a playable game validation.");
 return failed == 0 ? 0 : 1;
 

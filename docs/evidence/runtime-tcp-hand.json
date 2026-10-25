@@ -1,0 +1,13 @@
+{
+  "handId": 1,
+  "completed": true,
+  "nativeHostButtonAccepted": true,
+  "guestPrivateCardCount": 2,
+  "privateCardsIncluded": false,
+  "remoteSeat": "heavy",
+  "originalGameHost": true,
+  "guest": "headless TCP companion",
+  "finalPot": 0,
+  "finalStreet": "complete",
+  "totalChips": 50000
+}

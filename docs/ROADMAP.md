@@ -6,15 +6,16 @@
 - [x] Ferramentas locais com versões, origem e integridade registradas.
 - [x] Identificar build, formato Lua e interfaces de cartas/turnos/apostas/IA.
 - [x] Compilar .NET e C++; testar protocolo, lobby TCP e adaptador Lua isolado.
-- [ ] Bootstrap e callback Lua verificados dentro do jogo.
-- [ ] Demonstrar leitura de mesa e uma ação real, sem duplicação.
+- [x] Bootstrap e thread Lua verificados dentro do jogo.
+- [x] Demonstrar leitura de mesa e uma ação real, sem duplicação.
 
 ## M1 — Duas pessoas jogando
 
-- [ ] Ligar anfitrião ao motor original por IPC e fila na thread da engine.
-- [ ] Substituir decisões de IA nos lugares ocupados.
+- [x] Implementar transporte TCP e IPC tipado ao motor original, na thread Lua.
+- [x] Substituir decisões de IA nos lugares ocupados; Heavy validado por TCP no motor real.
 - [ ] Suspender distribuição, IA e resolução locais nos convidados.
-- [ ] Implementar réplica da mesa, cartas privadas, HUD e entradas locais.
+- [x] Implementar réplica da mesa, cartas privadas, HUD e entradas locais.
+- [ ] Validar todos esses caminhos entre duas instâncias reais.
 - [ ] Isolar saves, conquistas, recompensas e logs de cartas.
 - [ ] Completar uma mão entre duas máquinas; documentar evidência.
 
@@ -27,7 +28,7 @@
 
 ## M3 — Distribuição da alpha
 
-- [ ] Instalação e desinstalação reversíveis verificadas.
+- [x] Instalação e desinstalação reversíveis verificadas; recusa de hash alterado também testada.
 - [ ] Validar duas máquinas por Radmin VPN e Tailscale.
 - [ ] Testar vazamento de cartas nos pacotes, na réplica e nos logs.
 - [ ] Publicar pacote de alpha somente após M1 e validação relevante de M2.

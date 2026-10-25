@@ -45,6 +45,14 @@ test("snapshot separates public and hidden cards", function()
   assert(#snapshot.holeCards.heavy == 2 and snapshot.holeCards.heavy[1].rank == 5)
   assert(snapshot.public.toCall == 100 and snapshot.public.minimumRaise == 200)
 end)
+test("partial deal does not publish an incomplete private hand", function()
+  local previous=players[3].hole
+  players[3].hole=container({{5,1}})
+  local snapshot=adapter.capture(tableObject,{sessionId="test",handId=1,turnId=1,sequence=2,street="dealing"})
+  assert(#snapshot.holeCards.heavy==0)
+  players[3].hole=previous
+end)
+
 test("wire contribution converts to engine raise increment", function()
   adapter.applyAction(tableObject,"heavy",{action="raise",amount=350},{name="ModePreFlop"})
   assert(raiseSeen == 250)
@@ -64,6 +72,15 @@ test("all-in below call uses engine call", function()
   local action, text = adapter.applyAction(tableObject,"heavy",{action="allIn"},{name="ModePreFlop"})
   assert(action == Player.Action.CALL and text == "allIn" and players[3].chips == 0)
 end)
+test("normal showdown reveals only the players already shown by the engine", function()
+  players[3].showingHandCards=true
+  local hidden=adapter.capture(tableObject,{sessionId="test",handId=1,turnId=1,sequence=2,street="preflop"})
+  assert(hidden.public.revealedHands.heavy==nil,"Solo spectator UI must not reveal cards in multiplayer")
+  local snapshot=adapter.capture(tableObject,{sessionId="test",handId=1,turnId=1,sequence=2,street="showdown"})
+  assert(#snapshot.public.revealedHands.heavy==2 and snapshot.public.revealedHands.max==nil)
+  players[3].showingHandCards=false
+end)
+
 test("opponent folded cards remain hidden at showdown", function()
   tableObject.cardsTurnedOver = true
   players[1].folded = true

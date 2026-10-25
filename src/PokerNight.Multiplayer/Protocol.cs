@@ -18,7 +18,8 @@ public sealed record Card(int Rank, int Suit)
 }
 public sealed record PublicTableState(Guid SessionId, long HandId, long TurnId, long Sequence,
     Seat? ActiveSeat, string Street, long Pot, long ToCall, long MinimumRaise, Card[] CommunityCards,
-    PublicPlayerState[] Players, Dictionary<Seat, Card[]> RevealedHands);
+    PublicPlayerState[] Players, Dictionary<Seat, Card[]> RevealedHands, TableActionEvent? LastAction = null);
+public sealed record TableActionEvent(Seat Seat, PokerAction Action, long Amount, long TurnId);
 public sealed record PrivateHand(Guid SessionId, long HandId, long Sequence, Seat Seat, Card[] Cards);
 public sealed record PlayerAction([property: JsonRequired] Guid SessionId, [property: JsonRequired] long HandId,
     [property: JsonRequired] long TurnId, [property: JsonRequired] long Sequence,
@@ -27,7 +28,7 @@ public sealed record Hello(int ProtocolVersion, string GameSha256, string Nickna
 public sealed record Welcome(Guid SessionId, Guid ConnectionId);
 public sealed record SeatRequest([property: JsonRequired] Seat Seat);
 public sealed record ReadyRequest(bool Ready);
-public sealed record ProtocolError(string Code, string Message);
+public sealed record ProtocolError(string Code, string Message, long? TurnId = null);
 public sealed record WireMessage(string Type, JsonElement Payload)
 {
     public static WireMessage From<T>(string type, T value) => new(type, JsonSerializer.SerializeToElement(value, WireCodec.Json));
@@ -36,7 +37,7 @@ public sealed record WireMessage(string Type, JsonElement Payload)
 
 public static class WireCodec
 {
-    public const int Version = 1;
+    public const int Version = 2;
     public const int MaximumFrameBytes = 65536;
     public static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
     {

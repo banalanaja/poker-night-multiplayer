@@ -1,0 +1,26 @@
+local json=dofile("game/Json.lua")
+local passed=0
+local function test(name,fn) local ok,err=pcall(fn);assert(ok,name .. ": " .. tostring(err));passed=passed+1;print("PASS " .. name) end
+local function bad(text) assert(not pcall(json.decode,text),"Accepted invalid JSON") end
+test("typed bridge message roundtrip",function()
+  local value=json.decode(json.encode({sessionId="session",handId=1,turnId=2,sequence=3,seat="player",action="raise",amount=350}))
+  assert(value.amount==350 and value.action=="raise" and value.sequence==3)
+end)
+test("empty arrays and objects remain distinct",function()
+  assert(json.encode(json.array())=="[]" and json.encode({})=="{}")
+  assert(json.encode(json.decode('[]'))=='[]' and json.encode(json.decode('{}'))=='{}')
+end)
+test("strings unicode and boolean values",function()
+  local value=json.decode('{"a":false,"b":true,"c":null,"s":"a\\n\\t\\\"\\\\\\u00e1\\ud83c\\udca1"}')
+  assert(value.a==false and value.b==true and value.c==json.null)
+  assert(value.s:sub(1,4)=='a\n\t"')
+  assert(json.decode(json.encode(value)).s==value.s)
+end)
+test("invalid syntax duplicates and executable text rejected",function()
+  for _,value in ipairs({'01','1.','+1','[1,]','{"a":1,}','{"a":1,"a":2}','true false','NaN','1e999','loadstring("x")','"\\ud800"','"\\udc00"'}) do bad(value) end
+end)
+test("depth and size bounded",function()
+  bad(string.rep('[',34)..'0'..string.rep(']',34));bad(string.rep(' ',65537))
+  assert(not pcall(json.encode,math.huge))
+end)
+print(passed .. " JSON bridge tests passed.")

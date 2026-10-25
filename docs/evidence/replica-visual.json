@@ -1,0 +1,12 @@
+{
+  "privateCardsVisible": 2,
+  "source": "received state of the completed real host hand",
+  "communityCardsVisible": 5,
+  "traditionalCamera": true,
+  "chipsAndIdentityDisplayed": true,
+  "privateCardValuesIncluded": false,
+  "sameMachineSequentialValidation": true,
+  "twoGameInstancesAtOnce": false,
+  "snapshotError": false,
+  "guestCharacter": "Heavy"
+}

@@ -1,14 +1,14 @@
 namespace PokerNight.Multiplayer;
 
 // Every mutation is serialized, including simultaneous seat requests.
-public sealed class Lobby(string gameSha256, Guid hostConnectionId)
+public sealed class Lobby(string gameSha256, Guid hostConnectionId, Guid? sessionId = null)
 {
     private readonly object gate = new();
     private readonly Dictionary<Guid, string> names = new();
     private readonly Dictionary<Guid, Seat> assignments = new();
     private readonly HashSet<Guid> ready = new();
     private bool started;
-    public Guid SessionId { get; } = Guid.NewGuid();
+    public Guid SessionId { get; } = sessionId ?? Guid.NewGuid();
     public Guid HostConnectionId { get; } = hostConnectionId;
 
     public void Join(Guid connectionId, Hello hello)

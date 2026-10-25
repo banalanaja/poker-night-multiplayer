@@ -15,14 +15,14 @@
 |---|---|---|
 | Cinco lugares | `GameTable:Initialize`, `GetPlayers` | Ordem Max, Strongbad, Heavy, Tycho, Player |
 | Baralho | `Deck:Shuffle`, `Draw`; `GameTable:GetDeck` | Somente no anfitrião; nunca enviar o baralho ou a semente |
-| Distribuição | `GameTable:DoRoundState`, `state:Deal` | Bloquear no futuro driver dos convidados |
+| Distribuição | `GameTable:DoRoundState`, `state:Deal` | Somente no anfitrião; convidado não executa torneio |
 | Ação humana | `HumanPlayer:EvaluateAndAct`, `QueueAction` | Suspender decisão original em lugares remotos |
 | Ação dos bots | `AIPlayer:EvaluateAndAct` | Preservar nos lugares sem dono; adaptar o lugar original |
 | Turnos | `GameTable:DoRoundState`, `Player:EndTurn` | Criar IDs de mão/turno e consumir uma ação uma única vez |
 | Apostas | `Player:Call`, `Raise`; `GameTable:GetCallValue` | Conversão implementada em `applyAction` |
 | Potes e resultados | `PotManager`, `GameTable:ResolvePot` | Reutilizar regras originais; testes reais ainda pendentes |
 | Cartas privadas | `Player:GetHand().holeCards` | Estado local do anfitrião, projetado por destinatário |
-| Renderização | `CardRenderer_Render`, `Player:ShowHoleCardUI` | Renderização local própria; HUD e réplica ainda pendentes |
+| Renderização | `CardRenderer_Render`, `Player:ShowHoleCardUI` | Cartas locais e HUD implementados; réplica em validação |
 | Estado global | `GameObject:GetTable()` | Acesso somente após a cena estar pronta |
 
 **Detalhe importante:** no protocolo, `amount` de um raise é a quantidade de fichas paga
@@ -33,28 +33,36 @@ indevidamente. Essa conversão tem teste Lua próprio.
 O loop original resolve o fold após receber a ação. O adaptador retorna FOLD sem chamar
 `Fold` antecipadamente, evitando atualizar a mão/pote duas vezes.
 
-## Ainda não comprovado em runtime
+## Bootstrap e ação comprovados
 
-Não foram validados endereços, assinaturas de função, captura de `lua_State`, callback na
-thread do jogo, bootstrap, hooks de entrada, driver passivo dos convidados, sincronização
-de animações ou HUD completo. Não há injetor distribuído nem perfil com RVAs presumidos.
+O pacote adicional intercepta `_system.lua`, chama o bootstrap original extraído localmente
+e inicia `Runtime.lua` com `ThreadStart`. Esse mecanismo executa na thread Lua da engine e
+dispensa injeção nativa para a prova atual. O instalador compila os scripts com LuaR 5.2
+antes de empacotá-los; texto Lua nesse ponto causou inicialização sem concluir.
 
-A primeira sondagem por descritor adicional não produziu confirmação. O arquivo temporário
-foi removido. Execuções de diagnóstico abriram uma janela branca; o usuário confirmou que
-o jogo funciona normalmente quando iniciado pela Steam. O controle do computador foi
-interrompido por Escape, inclusive após autorização de retomada; não há evidência de uma
-mão real controlada pelo mod. Isso não é evidência de incompatibilidade do jogo.
+O descritor usa prioridade de dados 1000, superior ao recurso original de prioridade 0.
+O pacote possui scripts próprios e uma cópia do bootstrap obtida da instalação do usuário.
+Os dois arquivos gerados ficam fora da distribuição Git. Descritores e arquivos de recursos
+de teste devem ficar fora da pasta do jogo; o cache do instalador usa extensão `.bin`.
 
-REA/Ghidra funcionou num executável nativo de verificação. A análise completa do jogo
-atingiu o limite inicial de 330 segundos; isso também não prova incompatibilidade.
+A prova real leu a mesa, recebeu um call do lugar Player, reduziu seu stack de 10000 para
+9800, registrou contribuição 200 e avançou o turno. A evidência sem cartas está em
+`evidence/runtime-m0.json`. REA/Ghidra concluiu a análise completa após ampliar o prazo;
+os resultados permanecem privados em `.local/`.
 
-## Próxima prova necessária
+## Transporte e réplica
 
-1. Iniciar pela Steam com a pasta/ambiente corretos e confirmar a cena de poker.
-2. Identificar e validar o callback da engine que permite operar o estado Lua na thread correta.
-3. Capturar uma mesa real e aplicar exatamente uma ação legal no loop original.
-4. Somente então ligar o driver de partida ao transporte e implementar a réplica passiva.
-5. Suprimir logs originais que imprimem mãos completas e isolar persistência/conquistas antes de habilitar multiplayer.
+`FileGameRuntime` troca JSON limitado por arquivos locais. O anfitrião captura `host-frame`,
+que permanece local; `GameTransport` envia mesa pública e uma mão privada por conexão.
+`GameClient` combina as mensagens pela sequência e entrega uma visão ao Lua convidado.
+Não existe RPC para executar Lua arbitrário. Comandos carregam sessão, mão e turno.
 
-`runtimeHooksVerified` deve continuar falso até a prova 3 estar documentada. Alterar esse
-campo manualmente não implementa um loader nem torna o mod jogável.
+Um proxy de entrada humana controla os botões sem substituir os objetos que executam regras.
+O anfitrião intercepta a avaliação dos lugares humanos; os demais continuam com a IA original.
+O convidado suspende o torneio e aplica fichas, contribuições, cartas públicas e sua mão.
+Durante a distribuição, mãos de apenas uma carta não são projetadas para a rede.
+
+Persistência é sobreposta em memória; gravações, conquistas e debug que imprime cartas são
+suprimidos na sessão. A réplica completa, animações e uma mão em duas máquinas ainda exigem
+validação. `runtimeHooksVerified=true` registra a prova da integração Lua, não assinaturas C.
+A DLL continua opcional, sem injetor ou hooks nativos ativos.

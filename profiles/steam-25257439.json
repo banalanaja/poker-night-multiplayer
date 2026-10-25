@@ -9,5 +9,5 @@
   "luaVersion": "5.2",
   "luaNumberBytes": 4,
   "luaSizeTBytes": 4,
-  "runtimeHooksVerified": false
+  "runtimeHooksVerified": true
 }

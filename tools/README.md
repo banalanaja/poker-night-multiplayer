@@ -8,7 +8,7 @@ Instaladas em `.local/tools/`, fora do conteúdo distribuível do mod. Versões,
 | REA 6.7.0 | `rea/node_modules/rea-agents/scripts/rea.mjs` | CLI, doctor e análise real Ghidra passaram |
 | Ghidra 12.1.4 | `ghidra_12.1.4_PUBLIC/` | ZIP confere com digest oficial; provider Windows experimental |
 | Universal-Modder 0.2.0 | `universal-modder-venv/Scripts/um.exe` | `--version` e `scan --help` passaram; fonte fixada no commit c1dff21663665dd17af289744a301b66e369605e |
-| TTG Tools 1.16.1 | `ttg-tools-1.16.1/TTG Tools.exe` | ZIP confere com digest oficial; GUI não foi aberta |
+| TTG Tools 1.16.1 | `ttg-tools-1.16.1/TTG Tools.exe` | ZIP confere com digest oficial; empacotamento usado pelo instalador local |
 
 O Universal-Modder fornece CLI e referências de engenharia reversa nativa. Unity, BepInEx, MelonLoader e ferramentas IL2CPP não foram instalados: este jogo usa engine nativa Telltale. As funções de arte/fal não foram configuradas.
 
@@ -36,6 +36,15 @@ REA foi adquirido do registry npm, versão exata 6.7.0, com SHA-512 SRI conferid
 Os ZIPs TTG/Ghidra conferem com os digests da API oficial de releases GitHub. Node confere com o arquivo oficial HTTPS SHASUMS; a assinatura destacada desse arquivo não foi validada. O ZIP Universal-Modder tem SHA-256 local registrado e URL fixada no commit; o upstream não publica digest para esse arquivo.
 
 O REA passou no doctor e em análise real de seu executável auxiliar Ghidra decompile.exe (PE x64). O SHA-256 da fonte permaneceu inalterado. Isso valida inventário/análise estática nesse alvo, não compatibilidade de hooks ou análise completa do jogo; veja `verification.reaRealAnalysis` no manifesto. A execução restrita do agente pode impedir criação de snapshots privados com DACL; o teste nesse contexto retornou EACCES. Não reduza os controles do REA para contornar isso.
+
+A análise do executável completo do jogo também terminou, com o prazo de inicialização
+do Ghidra ampliado para 1200 segundos. O relatório permanece privado em `.local/`.
+Isso não valida assinaturas nativas nem substitui as provas da integração Lua.
+
+`Install-GameScripts.ps1` compila `TtgPackageBridge.cs`, um adaptador próprio que chama a
+instalação externa por reflexão. O adaptador identifica a configuração apropriada usando
+os dados da ferramenta instalada; nenhuma chave ou implementação de terceiros é distribuída.
+O pacote é construído em um arquivo temporário fora da árvore de recursos do jogo.
 
 Logs de diagnóstico ficam em `.local/tools/rea-doctor-ghidra.json` e `.local/tools/rea-inspect-*.json`. Eles não contêm credenciais e não precisam ser distribuídos. O manifesto e este README são os únicos registros de ferramentas destinados ao Git.
 

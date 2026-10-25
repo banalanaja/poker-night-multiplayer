@@ -1,0 +1,14 @@
+{
+  "executableSha256": "7D6E8BD48AC434EF59EAEDD61A3704D5DF7934A5593A204F247E93A0194FFBC9",
+  "integration": "compiled Lua 5.2 archive",
+  "bootstrapVerified": true,
+  "realTableRead": true,
+  "action": "call",
+  "accepted": true,
+  "handId": 1,
+  "turnId": 2,
+  "chipsBefore": 10000,
+  "chipsAfter": 9800,
+  "contributionAfter": 200,
+  "privateCardsIncluded": false
+}

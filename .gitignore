@@ -18,5 +18,6 @@ dist/
 *.zip
 *.7z
 *.ghidra*
+luac.out
 .vs/
 __pycache__/
